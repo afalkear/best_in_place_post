@@ -15,7 +15,7 @@ module BestInPlace
       opts[:collection] ||= []
       field = field.to_s
 
-      display_value = build_value_for(real_object, field, opts)
+      display_value = object.nil? ? nil : build_value_for(real_object, field, opts)
 
       collection = nil
       value = nil
@@ -39,8 +39,8 @@ module BestInPlace
         classes.flatten!
       end
 
-      out = "<span class='#{classes.join(" ")}'"
-      out << " id='#{BestInPlace::Utils.build_best_in_place_id(real_object, field)}'"
+      out = "<span id='cell-#{opts[:tabindex]}'class='#{classes.join(" ")}' tabindex='#{opts[:tabindex]}'"
+      out << " id='#{BestInPlace::Utils.build_best_in_place_id(real_object, field)}'" if value
       out << " data-url='#{opts[:path].blank? ? url_for(object) : url_for(opts[:path])}'"
       out << " data-object='#{opts[:object_name] || BestInPlace::Utils.object_to_key(real_object)}'"
       out << " data-collection='#{attribute_escape(collection)}'" unless collection.blank?
@@ -57,6 +57,7 @@ module BestInPlace
       out << " data-html-attrs='#{opts[:html_attrs].to_json}'" unless opts[:html_attrs].blank?
       out << " data-original-content='#{attribute_escape(real_object.send(field))}'" if opts[:display_as] || opts[:display_with]
       out << " data-value='#{attribute_escape(value)}'" if value
+      out << (display_value.nil? ? " data-method='post' " : " data-method='put' ")
 
       if opts[:data] && opts[:data].is_a?(Hash)
         opts[:data].each do |k, v|
